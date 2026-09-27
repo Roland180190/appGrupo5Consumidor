@@ -167,34 +167,7 @@ Las pruebas verifican:
 - Rechazo de valores nulos.
 - Rechazo de valores no numéricos.
 
-## Estructura del proyecto
 
-text
-src/
-├── main/
-│   ├── java/
-│   │   └── pe/
-│   │       └── cibertec/
-│   │           └── grupo5/
-│   │               └── consumidor/
-│   │                   ├── AppGrupo5ConsumidorApplication.java
-│   │                   ├── config/
-│   │                   │   └── RabbitMqConfig.java
-│   │                   ├── listener/
-│   │                   │   └── NumbersListener.java
-│   │                   └── service/
-│   │                       ├── MergeSortService.java
-│   │                       └── NumberParserService.java
-│   └── resources/
-│       └── application.properties
-└── test/
-    └── java/
-        └── pe/
-            └── cibertec/
-                └── grupo5/
-                    └── consumidor/
-                        └── service/
-                            └── NumberParserServiceTest.java
 
 
 ## Contribuciones del equipo
