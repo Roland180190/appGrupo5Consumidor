@@ -1,51 +1,73 @@
-<div align="center">
+# Consumidor RabbitMQ - Grupo 5
 
-# 🚀 App Grupo 5 Consumidor RabbitMQ
+## Descripción
 
-### Sistema de procesamiento y ordenamiento de números mediante mensajería distribuida
+Este proyecto implementa el consumidor RabbitMQ correspondiente a la evaluación T1 del curso *Desarrollo de Aplicaciones Web II – Cibertec*.
 
-<p>
-  <img src="https://img.shields.io/badge/Java-25-orange?logo=openjdk" alt="Java 25">
-  <img src="https://img.shields.io/badge/Spring%20Boot-4.1.1-brightgreen?logo=springboot" alt="Spring Boot">
-  <img src="https://img.shields.io/badge/RabbitMQ-3.13-ff6600?logo=rabbitmq" alt="RabbitMQ">
-  <img src="https://img.shields.io/badge/Grupo-5-blue" alt="Grupo 5">
-</p>
+El consumidor recibe una cadena de números enteros desde RabbitMQ, la convierte en un arreglo Integer[], espera 20 segundos y aplica el algoritmo *Merge Sort* para mostrar la lista ordenada en los registros de la aplicación.
 
-</div>
-
----
-
-## 📌 Descripción
-
-Este proyecto corresponde al *consumidor RabbitMQ* de la evaluación T1 del curso *Desarrollo de Aplicaciones Web II – Cibertec*.
-
-El sistema recibe una cadena de números enteros, la convierte en un arreglo, espera 20 segundos y aplica el algoritmo *Merge Sort* para mostrar la lista ordenada.
-
-
-
-## 🧰 Tecnologías
+## Tecnologías
 
 | Tecnología | Versión |
 |---|---|
 | Java | 25 |
 | Spring Boot | 4.1.1 |
 | Spring Cloud | 2025.1.3 |
+| Spring AMQP | Compatible con Spring Boot |
 | RabbitMQ | 3.13 |
 | Maven | 3.9+ |
+| Docker Compose | 2.x |
 
-## 🐇 Configuración RabbitMQ
+## Arquitectura del flujo
+
+text
+Productor REST
+      |
+      v
+RabbitMQ Exchange: Grupo5Exchange
+      |
+      v
+Queue: Grupo5Queue
+      |
+      v
+NumbersListener
+      |
+      v
+NumberParserService
+      |
+      v
+Espera de 20 segundos
+      |
+      v
+MergeSortService
+      |
+      v
+Lista ordenada en los logs
+
+
+## Configuración de RabbitMQ
 
 | Elemento | Valor |
 |---|---|
 | Queue | Grupo5Queue |
 | Exchange | Grupo5Exchange |
 | Routing Key | Grupo5Routing |
+| Tipo de Exchange | Direct |
 | Host | localhost |
 | Puerto | 5672 |
 | Usuario | guest |
 | Contraseña | guest |
 
-## ▶️ Ejecución
+## Requisitos
+
+Antes de ejecutar el proyecto, es necesario tener instalado:
+
+- Java 25.
+- Maven 3.9 o superior.
+- Docker Desktop.
+- Acceso al repositorio del productor.
+
+## Ejecución
 
 ### 1. Iniciar RabbitMQ
 
@@ -55,58 +77,81 @@ bash
 docker compose up -d
 
 
+Verificar que el contenedor esté activo:
+
+bash
+docker compose ps
+
+
+El panel de administración de RabbitMQ estará disponible en:
+
+text
+http://localhost:15672
+
+
+Credenciales:
+
+text
+Usuario: guest
+Contraseña: guest
+
+
 ### 2. Ejecutar el consumidor
+
+Desde la carpeta raíz de este proyecto:
 
 bash
 mvn spring-boot:run
 
 
-El consumidor estará disponible en:
+El consumidor funciona como un listener de RabbitMQ y no expone endpoints REST.
 
-text
-http://localhost:8082
+## Prueba del flujo completo
 
-
-## 🧪 Prueba del flujo completo
-
-Con el productor ejecutándose en el puerto 8081, realiza esta petición:
+Con RabbitMQ y el consumidor ejecutándose, iniciar también el productor y realizar la siguiente petición desde Windows CMD:
 
 cmd
 curl "http://localhost:8081/api/numbers?numbers=9%3B3%3B15%3B1%3B8"
 
 
-El productor responderá:
+Respuesta del productor:
 
 text
 Lista enviada a RabbitMQ correctamente.
 
 
-Después de 20 segundos, el consumidor mostrará:
+Después de aproximadamente 20 segundos, el consumidor mostrará en los logs:
 
 text
 Lista ordenada: [1, 3, 8, 9, 15]
 
 
-## 🧩 Componentes principales
+## Componentes principales
+
+### RabbitMqConfig
+
+Define la cola, el exchange, la clave de enrutamiento y la relación entre estos componentes.
+
+### NumbersListener
+
+Escucha los mensajes enviados a Grupo5Queue, recibe la cadena de números y coordina el procesamiento.
 
 ### NumberParserService
 
 Se encarga de:
 
-- Separar los números usando ;.
+- Separar los números utilizando ;.
 - Eliminar espacios innecesarios.
 - Convertir los valores a Integer.
-- Rechazar valores vacíos o no numéricos.
-
-### NumbersListener
-
-Escucha los mensajes enviados a Grupo5Queue, utiliza el parser y coordina el procesamiento de la lista.
+- Rechazar cadenas vacías.
+- Rechazar valores nulos.
+- Rechazar valores no numéricos.
 
 ### MergeSortService
 
-Implementa el algoritmo *Merge Sort* para ordenar los números recibidos.
+Implementa el algoritmo Merge Sort para ordenar los números recibidos.
 
-## ✅ Pruebas unitarias
+## Pruebas unitarias
 
 Ejecutar:
 
@@ -116,41 +161,60 @@ mvn test
 
 Las pruebas verifican:
 
-- Conversión correcta de números.
+- Conversión correcta de cadenas numéricas.
 - Manejo de espacios.
-- Cadenas vacías.
-- Valores null.
-- Valores no numéricos.
+- Rechazo de valores vacíos.
+- Rechazo de valores nulos.
+- Rechazo de valores no numéricos.
 
-## 📁 Estructura principal
+## Estructura del proyecto
 
 text
-src
-├── main
-│   ├── java
-│   │   └── pe.cibertec.grupo5.consumidor
-│   │       ├── config
-│   │       ├── listener
-│   │       └── service
-│   └── resources
-└── test
-    └── java
-        └── pe.cibertec.grupo5.consumidor.service
+src/
+├── main/
+│   ├── java/
+│   │   └── pe/
+│   │       └── cibertec/
+│   │           └── grupo5/
+│   │               └── consumidor/
+│   │                   ├── AppGrupo5ConsumidorApplication.java
+│   │                   ├── config/
+│   │                   │   └── RabbitMqConfig.java
+│   │                   ├── listener/
+│   │                   │   └── NumbersListener.java
+│   │                   └── service/
+│   │                       ├── MergeSortService.java
+│   │                       └── NumberParserService.java
+│   └── resources/
+│       └── application.properties
+└── test/
+    └── java/
+        └── pe/
+            └── cibertec/
+                └── grupo5/
+                    └── consumidor/
+                        └── service/
+                            └── NumberParserServiceTest.java
 
 
-## 👥 Aporte del equipo Grupo 5
+## Contribuciones del equipo
 
 - Configuración de RabbitMQ.
 - Implementación del consumidor.
 - Implementación del algoritmo Merge Sort.
-- Creación de NumberParserService.
-- Desarrollo de pruebas unitarias.
+- Desarrollo de NumberParserService.
+- Creación de pruebas unitarias.
 - Integración y validación del flujo productor-consumidor.
 
----
+## Detener RabbitMQ
 
-<div align="center">
+Cuando finalicen las pruebas, detener los servicios desde el repositorio del productor:
 
-### 💙 Grupo 5 — Desarrollo de Aplicaciones Web II
+bash
+docker compose down
 
-</div>
+
+## Grupo 5
+
+Desarrollo de Aplicaciones Web II  
+Cibertec
