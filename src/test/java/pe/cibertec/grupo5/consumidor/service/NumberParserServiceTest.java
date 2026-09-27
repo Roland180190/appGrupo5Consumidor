@@ -17,10 +17,32 @@ class NumberParserServiceTest {
     }
 
     @Test
+    void aceptaEspaciosAlrededorDeLosNumeros() {
+        assertArrayEquals(
+                new Integer[]{9, 3, 15},
+                service.parse(" 9 ; 3;15 ")
+        );
+    }
+
+    @Test
     void rechazaValorVacio() {
         assertThrows(
                 IllegalArgumentException.class,
                 () -> service.parse("9;;8")
+        );
+    }
+
+    @Test
+    void rechazaCadenaNulaOVacia() {
+        assertThrows(IllegalArgumentException.class, () -> service.parse(null));
+        assertThrows(IllegalArgumentException.class, () -> service.parse("   "));
+    }
+
+    @Test
+    void rechazaValorNoNumerico() {
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> service.parse("9;abc;8")
         );
     }
 }
