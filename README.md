@@ -21,16 +21,6 @@ Este proyecto corresponde al *consumidor RabbitMQ* de la evaluación T1 del curs
 
 El sistema recibe una cadena de números enteros, la convierte en un arreglo, espera 20 segundos y aplica el algoritmo *Merge Sort* para mostrar la lista ordenada.
 
-## 🔄 Flujo del sistema
-
-mermaid
-flowchart LR
-    A[🌐 Productor REST] -->|numbers=9;3;15;1;8| B[(🐇 RabbitMQ)]
-    B --> C[📥 Consumidor]
-    C --> D[🔢 NumberParserService]
-    D --> E[⏱️ Espera 20 segundos]
-    E --> F[📊 MergeSortService]
-    F --> G[✅ Lista ordenada]
 
 
 ## 🧰 Tecnologías
